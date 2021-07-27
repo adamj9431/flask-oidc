@@ -613,18 +613,18 @@ class OpenIDConnect(object):
                          % id_token['iss'])
             return False
 
-        if isinstance(id_token['aud'], list):
+        if isinstance(id_token['aud'], list) and len(id_token['aud'])>1: #updated a single list handling
             # step 3 for audience list
             if self.flow.client_id not in id_token['aud']:
                 logger.error('We are not a valid audience')
                 return False
             # step 4
-            if 'azp' not in id_token and len(id_token['aud']) > 1:
+            if 'azp' not in id_token:
                 logger.error('Multiple audiences and not authorized party')
                 return False
         else:
             # step 3 for single audience
-            if id_token['aud'] != self.flow.client_id:
+            if not ((id_token['aud'] == self.flow.client_id) or (isinstance(id_token['aud'], list) and self.flow.client_id in id_token['aud'])): #updated logic for single audience
                 logger.error('We are not the audience')
                 return False
 
